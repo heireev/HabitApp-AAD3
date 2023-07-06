@@ -1,8 +1,13 @@
 package com.dicoding.habitapp.data
 
 import android.content.Context
+import androidx.room.Database
+import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.dicoding.habitapp.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
@@ -11,6 +16,7 @@ import java.io.IOException
 import java.io.InputStreamReader
 
 //TODO 3 : Define room database class and prepopulate database using JSON
+@Database(entities = [Habit::class], version = 1)
 abstract class HabitDatabase : RoomDatabase() {
 
     abstract fun habitDao(): HabitDao
@@ -21,24 +27,35 @@ abstract class HabitDatabase : RoomDatabase() {
         private var INSTANCE: HabitDatabase? = null
 
         fun getInstance(context: Context): HabitDatabase {
-            throw NotImplementedError("Not yet implemented")
+            return INSTANCE ?: synchronized(this) {
+                val instance = Room.databaseBuilder(
+                    context.applicationContext,
+                    HabitDatabase::class.java,
+                    "habits.db"
+                ).build()
+                fillWithStartingData(context, instance.habitDao())
+                INSTANCE = instance
+                instance
+            }
         }
 
         private fun fillWithStartingData(context: Context, dao: HabitDao) {
             val jsonArray = loadJsonArray(context)
             try {
                 if (jsonArray != null) {
-                    for (i in 0 until jsonArray.length()) {
-                        val item = jsonArray.getJSONObject(i)
-                        dao.insertAll(
-                            Habit(
-                                item.getInt("id"),
-                                item.getString("title"),
-                                item.getLong("focusTime"),
-                                item.getString("startTime"),
-                                item.getString("priorityLevel")
+                    CoroutineScope(Dispatchers.IO).launch{
+                        for (i in 0 until jsonArray.length()) {
+                            val item = jsonArray.getJSONObject(i)
+                            dao.insertAll(
+                                Habit(
+                                    item.getInt("id"),
+                                    item.getString("title"),
+                                    item.getLong("focusTime"),
+                                    item.getString("startTime"),
+                                    item.getString("priorityLevel")
+                                )
                             )
-                        )
+                        }
                     }
                 }
             } catch (exception: JSONException) {

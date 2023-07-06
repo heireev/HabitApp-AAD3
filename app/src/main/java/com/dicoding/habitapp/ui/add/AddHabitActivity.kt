@@ -3,7 +3,6 @@ package com.dicoding.habitapp.ui.add
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
@@ -28,7 +27,7 @@ class AddHabitActivity : AppCompatActivity(), TimePickerFragment.DialogTimeListe
         supportActionBar?.title = getString(R.string.add_habit)
 
         val factory = ViewModelFactory.getInstance(this)
-        viewModel = ViewModelProvider(this, factory).get(AddHabitViewModel::class.java)
+        viewModel = ViewModelProvider(this, factory)[AddHabitViewModel::class.java]
 
     }
 
@@ -57,7 +56,7 @@ class AddHabitActivity : AppCompatActivity(), TimePickerFragment.DialogTimeListe
         }
     }
 
-    fun showTimePicker(view: View) {
+    fun showTimePicker() {
         val dialogFragment = TimePickerFragment()
         dialogFragment.show(supportFragmentManager, "timePicker")
     }
