@@ -39,39 +39,26 @@ class CountDownActivity : AppCompatActivity() {
 
         //TODO 13 : Start and cancel One Time Request WorkManager to notify when time is up.
 
-        val constraints = Constraints.Builder()
-            .setRequiresBatteryNotLow(true)
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
-
-        val builder = Data.Builder().apply {
-            putString(HABIT_TITLE, habit.title)
-            putInt(HABIT_ID, habit.id)
-        }.build()
-
-        val myWork = PeriodicWorkRequest.Builder(
-            NotificationWorker::class.java,
-            habit.minutesFocus,
-            TimeUnit.MINUTES
-        )
-            .setInputData(builder)
-            .setConstraints(constraints)
-            .build()
-
-        val workManager = WorkManager.getInstance(this@CountDownActivity)
-        workManager.enqueueUniquePeriodicWork(
-            NOTIF_UNIQUE_WORK,
-            ExistingPeriodicWorkPolicy.REPLACE,
-            myWork
-        )
-
         findViewById<Button>(R.id.btn_start).setOnClickListener {
             viewModel.startTimer()
+            val builder = Data.Builder().apply {
+                putString(HABIT_TITLE, habit.title)
+                putInt(HABIT_ID, habit.id)
+            }.build()
+            val myWork = OneTimeWorkRequest.Builder(NotificationWorker::class.java)
+                .setInitialDelay(habit.minutesFocus, TimeUnit.MINUTES)
+                .setInputData(builder)
+                .build()
+            WorkManager.getInstance(this@CountDownActivity).enqueueUniqueWork(
+                NOTIF_UNIQUE_WORK,
+                ExistingWorkPolicy.REPLACE,
+                myWork
+            )
             updateButtonState(true)
         }
 
         findViewById<Button>(R.id.btn_stop).setOnClickListener {
-            workManager.cancelUniqueWork(NOTIF_UNIQUE_WORK)
+            WorkManager.getInstance(this).cancelUniqueWork(NOTIF_UNIQUE_WORK)
             viewModel.resetTimer()
         }
 

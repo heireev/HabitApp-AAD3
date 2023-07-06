@@ -3,6 +3,7 @@ package com.dicoding.habitapp.ui.add
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
@@ -56,7 +57,7 @@ class AddHabitActivity : AppCompatActivity(), TimePickerFragment.DialogTimeListe
         }
     }
 
-    fun showTimePicker() {
+    fun showTimePicker(view: View) {
         val dialogFragment = TimePickerFragment()
         dialogFragment.show(supportFragmentManager, "timePicker")
     }
