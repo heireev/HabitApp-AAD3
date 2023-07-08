@@ -12,6 +12,7 @@ import androidx.core.app.NotificationCompat
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.dicoding.habitapp.R
+import com.dicoding.habitapp.ui.detail.DetailHabitActivity
 import com.dicoding.habitapp.ui.list.HabitListActivity
 import com.dicoding.habitapp.utils.HABIT_ID
 import com.dicoding.habitapp.utils.HABIT_TITLE
@@ -38,7 +39,9 @@ class NotificationWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, p
 
     @SuppressLint("UnspecifiedImmutableFlag")
     private fun showNotification() {
-        val intent = Intent(applicationContext, HabitListActivity::class.java)
+        val intent = Intent(applicationContext, DetailHabitActivity::class.java).apply {
+            putExtra(HABIT_ID, habitId)
+        }
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
 
         val pendingIntent = PendingIntent.getActivity(applicationContext, 0, intent, 0)
